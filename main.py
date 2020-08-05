@@ -36,38 +36,30 @@ class DataBase:
             userid INTEGER(18),
             discriminator INTEGER(4),
             time TIME);"""
-        self.write_create(sql_command)
+        self.write_db(sql_command)
 
-    def write_create(self, command):
+    def write_db(self, command, *value):
         connection = self.connect_db()
         cursor = connection.cursor()
-        cursor.execute(command)
+        cursor.execute(command, *value)
         connection.commit()
 
     def write(self, content, author, userid, discriminator, time):
         sql_command = """INSERT INTO message
         (message_number, content, author, userid, discriminator, time)
         VALUES (NULL, ?, ?, ?, ?, ?);"""
-        connection = self.connect_db()
-        cursor = connection.cursor()
-        cursor.execute(sql_command, (content, author, userid, discriminator, time))
-        connection.commit()
+        self.write_db(sql_command, (content, author, userid, discriminator, time))
 
-    def read_db(self, command):
+    def read_db(self, command, *value):
         connection = self.connect_db()
         cursor = connection.cursor()
-        cursor.execute(command)
+        cursor.execute(command, *value)
         result = cursor.fetchall()
         return result
 
     def read_all(self, name):
         data = "SELECT * FROM message WHERE author = ?"
-        connection = self.connect_db()
-        cursor = connection.cursor()
-        cursor.execute(data, (name,))
-        result = cursor.fetchall()
-        for r in result:
-            print(r)
+        return self.read_db(data, (name,))
 
 
 DISCORD = Discord()
