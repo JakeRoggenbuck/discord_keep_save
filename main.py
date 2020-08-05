@@ -33,8 +33,8 @@ class DataBase:
             message_number INTEGER PRIMARY KEY,
             content VARCHAR(2000),
             author VARCHAR(50),
-            userid VARCHAR(18),
-            discriminator CHAR(4),
+            userid INTEGER(18),
+            discriminator INTEGER(4),
             time TIME);"""
         self.write_db(sql_command)
 
@@ -47,7 +47,7 @@ class DataBase:
     def write(self, content, author, userid, discriminator, time):
         sql_command = "INSERT INTO message"
         sql_fields = "(message_number, content, author, userid, discriminator, time)"
-        sql_data = f"VALUES (NULL, '{content}', '{author}', '{userid}', '{discriminator}', '{time}');"
+        sql_data = f"VALUES (NULL, '{content}', '{author}', {userid}, {discriminator}, '{time}');"
         self.write_db(sql_command + sql_fields + sql_data)
 
     def read_db(self, command):
@@ -84,7 +84,7 @@ async def on_message(message):
     discriminator = message.author.discriminator
     time = datetime.now().strftime("%H:%M:%S")
     if content[:2] == ";s":
-        if content[2:] is None:
+        if content[2:] is not None:
             DATABASE.write(content[2:], author, userid, discriminator, time)
 
 if __name__ == "__main__":
