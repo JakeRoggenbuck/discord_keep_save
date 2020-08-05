@@ -36,19 +36,22 @@ class DataBase:
             userid INTEGER(18),
             discriminator INTEGER(4),
             time TIME);"""
-        self.write_db(sql_command)
+        self.write_create(sql_command)
 
-    def write_db(self, command):
+    def write_create(self, command):
         connection = self.connect_db()
         cursor = connection.cursor()
         cursor.execute(command)
         connection.commit()
 
     def write(self, content, author, userid, discriminator, time):
-        sql_command = "INSERT INTO message"
-        sql_fields = "(message_number, content, author, userid, discriminator, time)"
-        sql_data = f"VALUES (NULL, '{content}', '{author}', {userid}, {discriminator}, '{time}');"
-        self.write_db(sql_command + sql_fields + sql_data)
+        sql_command = """INSERT INTO message
+        (message_number, content, author, userid, discriminator, time)
+        VALUES (NULL, ?, ?, ?, ?, ?);"""
+        connection = self.connect_db()
+        cursor = connection.cursor()
+        cursor.execute(sql_command, (content, author, userid, discriminator, time))
+        connection.commit()
 
     def read_db(self, command):
         connection = self.connect_db()
@@ -57,9 +60,13 @@ class DataBase:
         result = cursor.fetchall()
         return result
 
-    def read_all(self):
-        data = self.read_db("SELECT * FROM message")
-        for r in data:
+    def read_all(self, name):
+        data = "SELECT * FROM message WHERE author = ?"
+        connection = self.connect_db()
+        cursor = connection.cursor()
+        cursor.execute(data, (name,))
+        result = cursor.fetchall()
+        for r in result:
             print(r)
 
 
